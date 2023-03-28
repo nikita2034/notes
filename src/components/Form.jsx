@@ -68,7 +68,7 @@ function Form({
                   icon="tasks fa-3x me-3"
                   style={{ color: "rgb(62,128,204)" }}
                 />
-                <span className="h1 fw-bold mb-0">To Do List</span>
+                <span className="h1 fw-bold mb-0">Notes</span>
               </div>
 
               <h5

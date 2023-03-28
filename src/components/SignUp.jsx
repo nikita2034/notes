@@ -24,13 +24,6 @@ const SignUp = () => {
   const auth = getAuth();
 
   const handleRegister = (email, password) => {
-    fetch(
-      `https://b24-9sdu4m.bitrix24.ru/rest/1/${password}/task.item.getlist.json`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        // проверка вебхука на правильность(существует ли учетная запись с таким вебхуком)
-        if (data !== null && data.error !== "INVALID_CREDENTIALS") {
           createUserWithEmailAndPassword(auth, email, password)
             .then(({ user }) => {
               dispatch(
@@ -38,7 +31,6 @@ const SignUp = () => {
                   email: user.email,
                   id: user.id,
                   token: user.accessToken,
-                  data: data.result,
                 })
               );
               navigate("/tasks");
@@ -64,10 +56,7 @@ const SignUp = () => {
                 setSpinner(!spinner);
               }
             });
-        } else {
-          setErrorDescription("Incorrect password (webhook)!");
-        }
-      });
+    
   };
   return (
     <Form

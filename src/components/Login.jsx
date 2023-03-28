@@ -17,11 +17,7 @@ const Login = () => {
 
   const handleLogin = (email, password) => {
     const auth = getAuth();
-    fetch(
-      `https://b24-9sdu4m.bitrix24.ru/rest/1/${password}/task.item.getlist.json`
-    )
-      .then((response) => response.json())
-      .then((data) => {
+   
         signInWithEmailAndPassword(auth, email, password)
           .then(({ user }) => {
             dispatch(
@@ -29,7 +25,6 @@ const Login = () => {
                 email: user.email,
                 id: user.uid,
                 token: user.accessToken,
-                data: data.result,
               })
             );
             navigate("/tasks");
@@ -55,7 +50,6 @@ const Login = () => {
               setSpinner(!spinner);
             }
           });
-      });
   };
 
   return (

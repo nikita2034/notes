@@ -7,6 +7,9 @@ body{ background-color:rgb(62,128,204)}.flex{-webkit-box-flex: 1;-ms-flex: 1 1 a
     border-radius: 5px;
     border:none;
     margin-left: 70%; 
+    color:rgb(62,128,204);
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 18px;
 }
 .top{
     margin-bottom: 15px;
@@ -38,3 +41,51 @@ body{ background-color:rgb(62,128,204)}.flex{-webkit-box-flex: 1;-ms-flex: 1 1 a
     margin-bottom: 10px;
     font-size: 18px;
 }
+.icon{
+    height: 47px;
+    width: 47px;
+    margin-top: -5px;
+    margin-left: 5px;
+    color:rgb(62,128,204);
+}
+.icon:hover{
+    color:rgb(130, 177, 231);
+}
+.inputAddNote{
+    margin-left: 16px;
+    height: 40px;
+    width: 400px;
+    border-radius:8px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-left: 15px;
+}
+.inputSearchNote{
+    margin-left: 30px;
+    height: 40px;
+    width: 200px;
+    border-radius:8px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-left: 15px;
+}
+.iconList{
+    height: 25px;
+    width: 25px;
+}
+.listButton{
+    border-radius:8px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    height: 36px;
+    color:white;
+    margin-left: 15px;
+    background-color:rgb(62,128,204);
+}
+.listButton:hover{
+    background-color:rgb(130, 177, 231);
+}
+
+.block{display: flex;}

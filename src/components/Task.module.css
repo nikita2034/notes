@@ -1,3 +1,17 @@
+input{
+  outline:none;
+  /* border:none;  */
+}
+.iconEdit{
+  
+  margin-left: 200px;
+  width: 22px;
+  height: 22px;
+}
+.iconDelete{
+  width: 22px;
+  height: 22px;
+}
 li {
     list-style-type: none; 
     margin-left: -30px;
@@ -8,14 +22,38 @@ button{
 
 }   
 button:hover{
-  color:rgb(62,128,204)
+  color:rgb(62,128,204);
 }
 .task{
     color:black;
     font-size: 16px;
 }
 .tasks{
+    display: flex;
+    align-content: space-between;
+    width: 600px;
     border-radius:3px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     border-bottom: 1px solid rgba(62,128,204,0.5);
+}
+.inputEdit{
+  height: 30px;
+  padding-left: 5px;
+  border-radius:4px;
+  font-family:Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  border: 1.5px solid rgb(62,128,204)
+}
+.note{
+  display: flex;
+  flex-direction: column;
+}
+.iconConfirmation{
+  height: 22px;
+  width: 22px;
+}
+.iconCancel{
+  margin-left: 200px;
+  height: 22px;
+  width: 22px;
 }

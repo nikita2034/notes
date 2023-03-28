@@ -1,58 +1,154 @@
 /*Компонет TaskPage предназначен для отрисовки таблицы с задачами.*/
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { removeUser } from "store/slices/userSlice"; // сброс данных пользователя, обнуление авторизации и выход из учетной записи
 import { useDispatch } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "hooks/use-auth";
-import { store } from "../store/index";
+import debounce from "lodash.debounce";
+import axios from "axios";
 import Tasks from "../components/Task";
-import s from "./TaskPage.module.css";
+import styles from "./TaskPage.module.css";
 import Container from "react-bootstrap/Container";
+import Dropdown from "react-bootstrap/Dropdown";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Modal from "react-bootstrap/Modal";
-const TaskPage = () => {
-  const [show, setShow] = useState(false); // состояние для управления модальным окном, показывающее описание задачи
-  const handleClose = () => setShow(false); // функция закрытия модального окна
-  const handleShow = () => setShow(true); // функция открытия модального окна
+import { MdAddBox } from "react-icons/md";
 
+const TaskPage = () => {
   const dispatch = useDispatch();
-  const [data, setData] = useState([]); // состояние для хранения всех задач пользователя
-  const [items, setItems] = useState([]); // состояние для хранения упрощенных задач пользователя (определенные свойства задачи)
-  const [description, setDescription] = useState("");
-  const [title, setTitle] = useState("");
-  const ShowDescription = (description, title) => {
-    setDescription(description);
-    setTitle(title);
-    handleShow();
+  const [data, setData] = useState([]);
+  const [items, setItems] = useState([]);
+
+  const [tagi, setTags] = useState([]);
+  const [TAGS, setTAGS] = useState([]);
+  const [textNote, setTextNote] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+
+  const [click, setClick] = useState(false);
+  const [idNote, setIdNote] = useState(false);
+
+  let tags = [];
+  let allTags = [];
+
+  const [getResponce, setGetResponce] = useState(false);
+
+  useEffect(() => {
+    console.log("get запрос");
+    axios
+      .get(`https://62960f8b810c00c1cb6e4645.mockapi.io/notes`)
+      .then((res) => {
+        setData(res.data);
+      });
+  }, [getResponce]);
+
+  useEffect(() => {
+    localStorage.clear();
+    setTags(
+      data.map((item) => {
+        return item.tags;
+      })
+    );
+    console.log(tagi);
+    let key = 0;
+    tagi.forEach((item, ind) =>
+      item.forEach((element, index) => {
+        localStorage.setItem(key, element);
+        console.log(element, key);
+        key += 1;
+      })
+    );
+    for (let i = 0; i < localStorage.length; i++) {
+      console.log(localStorage.getItem(i));
+      allTags.push(
+        <Dropdown.Item
+          onClick={() => {
+            setSearchValue(localStorage.getItem(i));
+          }}
+        >
+          {localStorage.getItem(i)}
+        </Dropdown.Item>
+      );
+    }
+    setTAGS(allTags);
+    setGetResponce(false);
+  }, [data]);
+
+  useEffect(() => {
+    if (textNote.lenght !== 0) {
+      var re = /\s*\s\s*/;
+      let nameList = textNote.split(re);
+      nameList.map((item) => {
+        if (item.includes("#")) {
+          tags.push(item);
+        }
+      });
+    }
+    if (click !== false && textNote.length !== 0) {
+      const article = {
+        textNote: textNote.replace(/\s*\#\s*/, " "),
+        tags: tags,
+      };
+      axios
+        .post("https://62960f8b810c00c1cb6e4645.mockapi.io/notes", article)
+        .finally(() => setGetResponce(true));
+      console.log("post", click);
+    }
+    setClick(false);
+    localStorage.clear();
+    setTextNote("");
+  }, [click]);
+
+  useEffect(() => {
+    if (idNote !== false) {
+      console.log("удаление");
+      axios
+        .delete(`https://62960f8b810c00c1cb6e4645.mockapi.io/notes/${idNote}`)
+        .finally(setGetResponce(true));
+      localStorage.clear();
+    }
+    setIdNote(false);
+  }, [idNote]);
+
+  useEffect(() => {
+    const search = searchValue ? `search=${searchValue.slice(1)}` : "";
+    console.log(searchValue);
+    axios
+      .get(`https://62960f8b810c00c1cb6e4645.mockapi.io/notes?${search}`)
+      .then((res) => {
+        setData(res.data);
+        console.log(res.data);
+      });
+  }, [searchValue]);
+
+  const updateSearchInput = useCallback(
+    debounce((str) => {
+      setSearchValue(str);
+    }, 200),
+    []
+  );
+
+  const onChangeInput = (str) => {
+    updateSearchInput(str);
   };
 
-  // useEffect срабатывает при первом рендаре страницы и получает данные пользователя (задачи) и store
-  useEffect(() => {
-    setData(store.getState().user.data);
-  }, []);
-
-  // useEffect срабатывает, если изменились данные пользователя(задачи). Создается массив items с упрощенными задачами. Каждая задача является элементом <li>
   useEffect(() => {
     setItems(
-      data.map((item, index) => {
+      data.map((item) => {
         return (
           <Tasks
-            key={index}
-            title={item.TITLE} //название задачи
-            description={item.DESCRIPTION} //описание задачи
-            activity={item.ACTIVITY_DATE} //дата создания задачи
-            deadline={item.DEADLINE} //дедлайн задачи
-            directorLastName={item.CREATED_BY_LAST_NAME} //фамилия создателя задачи
-            directorName={item.CREATED_BY_NAME} //имя создателя задачи
-            responsibleLastName={item.RESPONSIBLE_LAST_NAME} //фамилия ответственного за выполнение задачи
-            responsibleName={item.RESPONSIBLE_NAME} //имя ответственного за выполнение задачи
-            onClick={ShowDescription} //функция для получение описания и названия задачи и открытия модального окна с описание задачи
+            key={item.id}
+            id={item.id}
+            title={item.textNote}
+            tags={item.tags}
+            getId={(id) => setIdNote(id)}
+            getResponce={() => setGetResponce}
           />
         );
       })
     );
+    console.log(data);
   }, [data]);
+
   const { isAuth } = useAuth();
 
   // isAuth хранит состояние авторизации пользователя, если isAuth=true, отрисовываются таблица задач,если isAuth=false происходит переход на страницу авторизации
@@ -60,13 +156,13 @@ const TaskPage = () => {
     <div class="page-content page-container" id="page-content">
       <div class="padding">
         <Container>
-          <Row className={s.top}>
+          <Row className={styles.top}>
             <Col>
-              <h4 className={s.header}>To Do List</h4>
+              <h4 className={styles.header}>Notes</h4>
             </Col>
             <Col>
               <button
-                className={s.button}
+                className={styles.button}
                 onClick={() => dispatch(removeUser())}
               >
                 Exit
@@ -79,30 +175,30 @@ const TaskPage = () => {
           <div class="col-md-12">
             <div class="card px-3">
               <div class="card-body">
-                <Modal show={show} onHide={handleClose}>
-                  <Modal.Header closeButton>
-                    <Modal.Title>{title}</Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <div className={s.modal_header}>Task description:</div>
-                    {description}
-                  </Modal.Body>
-                  <Modal.Footer></Modal.Footer>
-                </Modal>
-
-                <Container>
-                  <Row className={s.task_property}>
-                    <Col className={s.headings} onClick={handleShow}>
-                      Title
+                <div className={styles.tasks}>
+                  <Container className={styles.block}>
+                    <Col>
+                      <input
+                        className={styles.inputAddNote}
+                        placeholder="write notes"
+                        value={textNote}
+                        onChange={(event) => setTextNote(event.target.value)}
+                      />
                     </Col>
-                    <Col className={s.headings}>Activity</Col>
-                    <Col className={s.headings}>Deadline</Col>
-                    <Col className={s.headings}>Сreator</Col>
-                    <Col className={s.headings}>Responsible</Col>
-                  </Row>
-                </Container>
+                    <Col>
+                      <button onClick={() => setClick(true)}>
+                        <MdAddBox className={styles.icon} />
+                      </button>
+                    </Col>
+                    <Col>
+                      <input
+                        className={styles.inputSearchNote}
+                        placeholder="search notes "
+                        onChange={(event) => onChangeInput(event.target.value)}
+                      />
+                    </Col>
+                  </Container>
 
-                <div className={s.tasks}>
                   <ul class="d-flex flex-column-reverse todo-list">{items}</ul>
                 </div>
               </div>
